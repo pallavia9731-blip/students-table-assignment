@@ -1,70 +1,107 @@
-# Getting Started with Create React App
+# 🎓 Students Table
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern **React.js frontend application** for managing student records with full **CRUD operations**, live search, Excel export, and a polished dark UI.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🚀 Live Demo
 
-### `npm start`
+https://students-table-assignment-b9ir.vercel.app/
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 📂 Repository
 
-### `npm test`
+## https://github.com/pallavia9731-blip/students-table-assignment
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🛠️ Tech Stack
 
-### `npm run build`
+| Technology        | Purpose                           |
+| ----------------- | --------------------------------- |
+| React.js          | UI framework                      |
+| JavaScript (ES6+) | Application logic                 |
+| CSS3              | Custom dark glassmorphism styling |
+| xlsx              | Excel file generation             |
+| file-saver        | File download trigger             |
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## ✨ Features
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **Add Student** — form with full validation (name, email, age all required; valid email format enforced)
+- **Edit Student** — pre-filled form, same validations apply
+- **Delete Student** — confirmation dialog before removal
+- **Live Search** — filters table by name or email in real time with highlighted matches
+- **Success Alerts** — portal-based modal confirmation after add and edit actions
+- **Excel Export** — exports current (filtered or full) list as `.xlsx`
+- **Simulated Loading** — 3-second loading state with spinner on form submit
+- **Navbar** — sticky navigation with Add Student, Students List, and Download Excel tabs
+- **Responsive** — table layout on desktop, card layout on mobile
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 📦 Installation
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+# 1. Clone the repository
+git clone https://github.com/ABHI4570165/students-table.git
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+# 2. Navigate into the project
+cd students-table
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# 3. Install dependencies
+npm install
 
-## Learn More
+# 4. Install required libraries
+npm install xlsx file-saver
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# 5. Start the development server
+npm start
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+App runs at `http://localhost:3000`
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 📁 Project Structure
 
-### Analyzing the Bundle Size
+```
+students-table/
+├── src/
+│   ├── App.js           # Root component — state, navbar, routing between tabs
+│   ├── App.css          # Global styles
+│   ├── StudentForm.js   # Add / Edit form with validation and loading state
+│   ├── StudentTable.js  # Table, search, delete confirmation, Excel export
+│   └── index.js         # React entry point
+├── package.json
+└── README.md
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## 📊 Excel Export
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Uses **xlsx** to convert student JSON data into a spreadsheet and **file-saver** to trigger the browser download.
 
-### Advanced Configuration
+- Exports filtered results when a search is active
+- Exports all records when no search is applied
+- Output file: `students.xlsx`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+---
 
-### Deployment
+## ⚙️ How It Works
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+All data is managed in **React component state** (`useState`). No backend or database is required. Data resets on page refresh — this is intentional for the assignment scope.
 
-### `npm run build` fails to minify
+CRUD flow:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **Create** → validated form → 3s simulated load → student added to state → success alert
+- **Read** → students rendered in table (desktop) or cards (mobile) with live search filtering
+- **Update** → edit button pre-fills form → same validation → success alert on save
+- **Delete** → confirmation modal via React Portal → removed from state
+
+---
+
+## 📜 License
+
+Built for educational and assignment purposes.

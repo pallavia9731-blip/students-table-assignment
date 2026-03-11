@@ -1,129 +1,201 @@
-import React, { useEffect, useState } from "react";
-import studentsData from "./data/students.json";
-import "./App.css";
-import AddStudent from "./components/AddStudent";
+import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
+import StudentForm from "./components/StudentForm";
 import StudentTable from "./components/StudentTable";
-import EditStudent from "./components/EditStudent";
-import Loader from "./components/Loader";
 
-import { exportToExcel } from "./utils/exportExcel";
+import "./App.css";
 
-function App() {
+let nextId = 1;
+
+export default function App() {
   const [students, setStudents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [editStudentData, setEditStudentData] = useState(null);
-  const [search, setSearch] = useState("");
-  const [activeSection, setActiveSection] = useState("");
-  const [message, setMessage] = useState("");
+  const [editingStudent, setEditingStudent] = useState(null);
+  const [activeTab, setActiveTab] = useState("add");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [alert, setAlert] = useState(null); // { type, name, mode }
 
+  // Auto-dismiss alert after 3.5 s
   useEffect(() => {
-    setTimeout(() => {
-      setStudents(studentsData);
-      setLoading(false);
-    }, 2000);
-  }, []);
+    if (!alert) return;
+    const t = setTimeout(() => setAlert(null), 3500);
+    return () => clearTimeout(t);
+  }, [alert]);
+
+  const addStudent = (student) => {
+    setStudents((prev) => [...prev, { ...student, id: nextId++ }]);
+    setAlert({ mode: "add", name: student.name });
+    setActiveTab("list");
+  };
+
+  const updateStudent = (updated) => {
+    setStudents((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
+    setEditingStudent(null);
+    setAlert({ mode: "edit", name: updated.name });
+    setActiveTab("list");
+  };
 
   const deleteStudent = (id) => {
-    if (window.confirm("Are you sure to delete?")) {
-      setStudents(students.filter((s) => s.id !== id));
-      setMessage("Student deleted successfully");
-      setTimeout(() => setMessage(""), 3000);
-    }
+    setStudents((prev) => prev.filter((s) => s.id !== id));
   };
 
-  const editStudent = (student) => {
-    setEditStudentData(student);
-    setActiveSection("add");
+  const handleEdit = (student) => {
+    setEditingStudent(student);
+    setActiveTab("add");
   };
 
-  const updateStudent = (updatedStudent) => {
-    setStudents(
-      students.map((s) => (s.id === updatedStudent.id ? updatedStudent : s)),
-    );
-    setEditStudentData(null);
-    setMessage("Student updated successfully");
-    setTimeout(() => setMessage(""), 3000);
+  const handleNavClick = (tab) => {
+    setActiveTab(tab);
+    setMobileMenuOpen(false);
+    if (tab !== "add") setEditingStudent(null);
   };
-
-  const filteredStudents = students.filter(
-    (student) =>
-      student.name.toLowerCase().includes(search.toLowerCase()) ||
-      student.email.toLowerCase().includes(search.toLowerCase()),
-  );
-
-  if (loading) return <Loader />;
 
   return (
-    <div className="container mt-4">
-      <h2 className="text-primary mb-3">Students Management</h2>
+    <div className="app">
+      {/* ── SUCCESS ALERT PORTAL ── */}
+      {alert &&
+        ReactDOM.createPortal(
+          <div className="modal-overlay" onClick={() => setAlert(null)}>
+            <div
+              className="modal success-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-icon success-icon">
+                {alert.mode === "add" ? "🎉" : "✅"}
+              </div>
+              <h3>
+                {alert.mode === "add" ? "Student Added!" : "Student Updated!"}
+              </h3>
+              <p>
+                {alert.mode === "add" ? (
+                  <>
+                    <strong>{alert.name}</strong> has been successfully
+                    enrolled.
+                  </>
+                ) : (
+                  <>
+                    <strong>{alert.name}</strong>'s details have been updated
+                    successfully.
+                  </>
+                )}
+              </p>
+              <div className="success-progress">
+                <div className="success-progress-bar" />
+              </div>
+              <div className="modal-actions">
+                <button
+                  className="btn-success-ok"
+                  onClick={() => setAlert(null)}
+                >
+                  Got it!
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
 
-      {message && <div className="alert alert-success">{message}</div>}
+      {/* ── NAVBAR ── */}
+      <nav className="navbar">
+        <div className="navbar-inner">
+          <div className="navbar-brand">
+            <span className="brand-icon">🎓</span>
+            <span className="brand-name">STUDENT PORTAL</span>
+          </div>
 
-      <div className="mb-4">
-        <button
-          className="btn btn-primary me-2"
-          onClick={() => setActiveSection("add")}
-        >
-          Add Student
-        </button>
+          <div className="nav-links">
+            <button
+              className={`nav-link ${activeTab === "add" ? "active" : ""}`}
+              onClick={() => handleNavClick("add")}
+            >
+              <span className="nav-icon">＋</span>
+              {editingStudent ? "Edit Student" : "Add Student"}
+            </button>
 
-        <button
-          className="btn btn-info me-2"
-          onClick={() => setActiveSection("list")}
-        >
-          List Students
-        </button>
+            <button
+              className={`nav-link ${activeTab === "list" ? "active" : ""}`}
+              onClick={() => handleNavClick("list")}
+            >
+              <span className="nav-icon">☰</span>
+              Students List
+              {students.length > 0 && (
+                <span className="nav-badge">{students.length}</span>
+              )}
+            </button>
+          </div>
 
-        <button
-          className="btn btn-success"
-          onClick={() => {
-            exportToExcel(students);
-            setMessage("Excel downloaded successfully");
-            setTimeout(() => setMessage(""), 3000);
-          }}
-        >
-          Download Excel
-        </button>
-      </div>
+          <button
+            className={`hamburger ${mobileMenuOpen ? "open" : ""}`}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
 
-      {activeSection === "add" &&
-        (editStudentData ? (
-          <EditStudent
-            student={editStudentData}
-            updateStudent={updateStudent}
-            cancelEdit={() => setEditStudentData(null)}
-          />
-        ) : (
-          <AddStudent
-            students={students}
-            setStudents={setStudents}
-            setMessage={setMessage}
-          />
-        ))}
+        {mobileMenuOpen && (
+          <div className="mobile-menu">
+            <button
+              className={`mobile-menu-item ${activeTab === "add" ? "active" : ""}`}
+              onClick={() => handleNavClick("add")}
+            >
+              <span>＋</span>
+              {editingStudent ? "Edit Student" : "Add Student"}
+            </button>
+            <button
+              className={`mobile-menu-item ${activeTab === "list" ? "active" : ""}`}
+              onClick={() => handleNavClick("list")}
+            >
+              <span>☰</span>
+              Students List
+              {students.length > 0 && (
+                <span className="nav-badge">{students.length}</span>
+              )}
+            </button>
+          </div>
+        )}
+      </nav>
 
-      {activeSection === "list" && (
-        <>
-          <input
-            type="text"
-            placeholder="Search by name or email..."
-            className="form-control mb-3"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      {/* ── MAIN CONTENT ── */}
+      <main className="container">
+        <div className="page-header">
+          <h1>
+            {activeTab === "add"
+              ? editingStudent
+                ? "Edit Student"
+                : "Add Student"
+              : "Students List"}
+          </h1>
+          <p className="header-sub">
+            {activeTab === "add"
+              ? editingStudent
+                ? "Update the student's information below"
+                : "Fill in the details to enroll a new student"
+              : `${students.length} student${students.length !== 1 ? "s" : ""} enrolled`}
+          </p>
+        </div>
 
-          {filteredStudents.length === 0 ? (
-            <p className="text-danger">Student not found</p>
-          ) : (
-            <StudentTable
-              students={filteredStudents}
-              deleteStudent={deleteStudent}
-              editStudent={editStudent}
+        {activeTab === "add" && (
+          <div className="tab-panel">
+            <StudentForm
+              addStudent={addStudent}
+              editingStudent={editingStudent}
+              updateStudent={updateStudent}
             />
-          )}
-        </>
-      )}
+          </div>
+        )}
+
+        {activeTab === "list" && (
+          <div className="tab-panel">
+            <StudentTable
+              students={students}
+              deleteStudent={deleteStudent}
+              editStudent={handleEdit}
+            />
+          </div>
+        )}
+      </main>
     </div>
   );
 }
-
-export default App;
